@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  email        String    @unique
+  password     String    // Nova coluna para a senha
+  phone        String?   // Nova coluna para o número de telefone (opcional)
+  lists        Lists[]
+}
+
+model Lists {
+  id           Int       @id @default(autoincrement())
+  name         String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  items        Item[]    // Relacionamento com a tabela Item
+  user         User?     @relation(fields: [userId], references: [id])
+  userId       Int?
+}
+
+model Item {
+  id           Int       @id @default(autoincrement())
+  name         String
+  quantity     Float?
+  unit         String?
+  price        Float?    // Novo campo para o preço do item
+  status       String?   // Pode ser "comprado" ou "não comprado"
+  list         Lists     @relation(fields: [listId], references: [id])
+  listId       Int
+}
+
+model ItemSearch {
+  id           Int       @id @default(autoincrement())
+  itemName     String    // Retorna apenas o nome do item
+}
