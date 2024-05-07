@@ -19,6 +19,7 @@ model User {
   email        String    @unique
   password     String    // Nova coluna para a senha
   phone        String?   // Nova coluna para o número de telefone (opcional)
+  tutorial     Boolean?
   lists        Lists[]
 }
 
