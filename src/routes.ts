@@ -22,7 +22,8 @@ router.patch('/tutorial', authMiddleware, User.tutorial);
 router.get('/items/search', authMiddleware, Item.itemsearch);
 router.get('/items', authMiddleware, Item.allitems);
 
-router.post('/lists', authMiddleware, Lists.createlist);
+router.post('/create/list', authMiddleware, Lists.createlist);
+router.get('/lists', authMiddleware, Lists.lists);
 
 
 export default router;
