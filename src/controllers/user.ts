@@ -83,6 +83,7 @@ class User {
                     username: true,
                     email: true,
                     phone: true,
+                    tutorial: true
                 },
             });
 

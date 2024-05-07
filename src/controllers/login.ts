@@ -51,6 +51,7 @@ class Login {
               username: user.username,
               email: user.email,
               phone: user.phone,
+              tutorial: user.tutorial
             }
           });
         } catch (error) {
