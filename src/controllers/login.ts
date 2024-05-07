@@ -36,6 +36,7 @@ class Login {
               username: user.username,
               email: user.email,
               phone: user.phone,
+              tutorial: user.tutorial
             },
             process.env.JWT_SECRET || '', // Chave secreta para assinar o token
             {
