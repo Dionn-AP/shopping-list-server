@@ -3,7 +3,8 @@ import { Router } from "express";
 import authMiddleware from "./middleware/auth";
 import User from "./controllers/user";
 import Login from './controllers/login';
-import user from "./controllers/user";
+import Item from './controllers/items';
+import Lists from './controllers/lists';
 
 const router = Router();
 
@@ -13,9 +14,15 @@ router.post('/login', Login.authenticate);
 
 
 //routes authenticated
-router.put('/user', authMiddleware, User.updateuser);
 router.get('/user', authMiddleware, User.user);
-router.delete('/user/:id', authMiddleware, user.deleteuser);
+router.put('/user', authMiddleware, User.updateuser);
+router.delete('/user/:id', authMiddleware, User.deleteuser);
+router.patch('/tutorial', authMiddleware, User.tutorial);
+
+router.get('/items/search', authMiddleware, Item.itemsearch);
+router.get('/items', authMiddleware, Item.allitems);
+
+router.post('/lists', authMiddleware, Lists.createlist);
 
 
 export default router;

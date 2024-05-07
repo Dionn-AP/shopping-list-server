@@ -71,7 +71,7 @@ class User {
 
     async user(req: Request, res: Response) {
         const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
-       
+
         try {
             // Busca os dados do usuário pelo ID, excluindo a senha
             const user = await prisma.user.findUnique({
@@ -182,6 +182,27 @@ class User {
             res.status(200).json({ message: "Usuário removido com sucesso." });
         } catch (error) {
             return res.status(500).json(error);
+        }
+    }
+
+    async tutorial(req: Request, res: Response) {
+        const userId = parseInt(req.userId);
+        const { tutorial } = req.body;
+
+        try {
+            // Atualiza apenas o campo 'tutorial' do usuário
+            const updatedUser = await prisma.user.update({
+                where: { id: userId },
+                data: { tutorial }
+            });
+
+            !updatedUser.tutorial ?
+                res.json({ message: "Você optou por não ver mais o tutorial no próximo login." }) :
+                res.json({ message: "Você optou por ver o tutorial o próximo login." })
+
+        } catch (error) {
+            console.error('Erro ao atualizar tutorial do usuário:', error);
+            res.status(500).json({ error: 'Erro ao atualizar tutorial do usuário' });
         }
     }
 }
