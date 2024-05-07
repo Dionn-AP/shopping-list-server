@@ -20,5 +20,6 @@ router.delete('/user/:id', auth_1.default, user_1.default.deleteuser);
 router.patch('/tutorial', auth_1.default, user_1.default.tutorial);
 router.get('/items/search', auth_1.default, items_1.default.itemsearch);
 router.get('/items', auth_1.default, items_1.default.allitems);
-router.post('/lists', auth_1.default, lists_1.default.createlist);
+router.post('/create/list', auth_1.default, lists_1.default.createlist);
+router.get('/lists', auth_1.default, lists_1.default.lists);
 exports.default = router;

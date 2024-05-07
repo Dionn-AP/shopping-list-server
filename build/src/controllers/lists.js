@@ -42,5 +42,34 @@ class Lists {
             }
         });
     }
+    lists(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
+            try {
+                // Busca as listas do usuário e os itens associados a cada lista
+                const userLists = yield prisma.user.findUnique({
+                    where: {
+                        id: userId,
+                    },
+                    select: {
+                        lists: {
+                            include: {
+                                items: true,
+                            },
+                        },
+                    },
+                });
+                if (!userLists) {
+                    return res.status(404).json({ error: 'Usuário não encontrado' });
+                }
+                // Retorna as listas e os itens associados a cada lista
+                res.json(...userLists.lists);
+            }
+            catch (error) {
+                console.error('Erro ao buscar listas do usuário:', error);
+                res.status(500).json({ error: 'Erro ao buscar listas do usuário' });
+            }
+        });
+    }
 }
 exports.default = new Lists();
