@@ -57,7 +57,7 @@ class Lists {
             }
 
             // Retorna as listas e os itens associados a cada lista
-            res.json(...userLists.lists);
+            res.json(userLists.lists);
         } catch (error) {
             console.error('Erro ao buscar listas do usuário:', error);
             res.status(500).json({ error: 'Erro ao buscar listas do usuário' });

@@ -63,7 +63,7 @@ class Lists {
                     return res.status(404).json({ error: 'Usuário não encontrado' });
                 }
                 // Retorna as listas e os itens associados a cada lista
-                res.json(...userLists.lists);
+                res.json(userLists.lists);
             }
             catch (error) {
                 console.error('Erro ao buscar listas do usuário:', error);
