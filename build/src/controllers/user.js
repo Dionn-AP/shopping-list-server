@@ -150,7 +150,7 @@ class User {
                         phone: true,
                     },
                 });
-                res.json({ message: "Dados do usuário atualizados com sucesso." });
+                res.json({ message: "Dados do usuário atualizados com sucesso.", user: updatedUser });
             }
             catch (error) {
                 console.error('Erro ao atualizar usuário:', error);

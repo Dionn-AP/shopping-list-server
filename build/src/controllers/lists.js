@@ -14,13 +14,14 @@ const prisma = new client_1.PrismaClient();
 class Lists {
     createlist(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { name, items } = req.body;
+            const { name, items, statusList } = req.body;
             const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
             try {
                 // Cria a lista no banco de dados associada ao usuário logado
                 const newList = yield prisma.lists.create({
                     data: {
                         name,
+                        statusList,
                         user: {
                             connect: { id: userId } // Conecta a lista ao usuário logado
                         },
@@ -42,6 +43,40 @@ class Lists {
             }
         });
     }
+    ;
+    updateListStatus(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { statusList } = req.body;
+            const { listId } = req.params;
+            const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
+            try {
+                // Verificar se a lista pertence ao usuário logado
+                const existingList = yield prisma.lists.findUnique({
+                    where: {
+                        id: parseInt(listId),
+                    },
+                });
+                if (!existingList || existingList.userId !== userId) {
+                    return res.status(404).json({ error: 'Lista não encontrada ou não pertence ao usuário.' });
+                }
+                // Atualizar o statusList da lista no banco de dados
+                yield prisma.lists.update({
+                    where: {
+                        id: parseInt(listId),
+                    },
+                    data: {
+                        statusList: statusList,
+                    },
+                });
+                res.status(200).json({ message: 'Status da lista atualizado com sucesso.' });
+            }
+            catch (error) {
+                console.error('Erro ao atualizar status da lista:', error);
+                res.status(500).json({ error: 'Erro ao atualizar status da lista' });
+            }
+        });
+    }
+    ;
     lists(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
@@ -71,5 +106,76 @@ class Lists {
             }
         });
     }
+    ;
+    getListByName(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { name } = req.query;
+            const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
+            try {
+                // Verifica se existem listas associadas ao usuário logado
+                const userLists = yield prisma.lists.findMany({
+                    where: {
+                        userId: userId,
+                    }
+                });
+                if (!userLists || userLists.length === 0) {
+                    return res.status(404).json({ message: 'Nenhuma lista encontrada para o usuário logado.' });
+                }
+                // Busca as listas do usuário com base no nome fornecido
+                const filteredLists = yield prisma.lists.findMany({
+                    where: {
+                        name: {
+                            contains: name, mode: 'insensitive'
+                        } // Filtra pelo nome fornecido
+                    }
+                });
+                // Retorna as listas encontradas
+                res.json(filteredLists);
+            }
+            catch (error) {
+                console.error('Erro ao buscar listas pelo nome:', error);
+                res.status(500).json({ error: 'Erro ao buscar listas pelo nome' });
+            }
+        });
+    }
+    ;
+    addItemToList(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { listId } = req.params;
+            const { items } = req.body;
+            const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
+            try {
+                // Verifica se a lista pertence ao usuário logado
+                const existingList = yield prisma.lists.findFirst({
+                    where: {
+                        id: parseInt(listId),
+                        userId: userId,
+                    },
+                    include: {
+                        items: true,
+                    },
+                });
+                if (!existingList) {
+                    return res.status(404).json({ error: 'Lista não encontrada ou não pertence ao usuário.' });
+                }
+                const createdItems = yield Promise.all(items.map((item) => __awaiter(this, void 0, void 0, function* () {
+                    return prisma.item.create({
+                        data: Object.assign(Object.assign({}, item), { list: {
+                                connect: {
+                                    id: existingList.id,
+                                },
+                            } })
+                    });
+                })));
+                res.json(createdItems);
+            }
+            catch (error) {
+                console.error('Erro ao adicionar item à lista:', error);
+                res.status(500).json({ error: 'Erro ao adicionar item à lista' });
+            }
+        });
+    }
+    ;
 }
+;
 exports.default = new Lists();

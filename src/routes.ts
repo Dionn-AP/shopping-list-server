@@ -21,9 +21,13 @@ router.patch('/tutorial', authMiddleware, User.tutorial);
 
 router.get('/items/search', authMiddleware, Item.itemsearch);
 router.get('/items', authMiddleware, Item.allitems);
+router.put('/lists/:listId/items/:itemId/update', authMiddleware, Item.updateItem);
 
 router.post('/create/list', authMiddleware, Lists.createlist);
+router.patch('/update/list/:listId', authMiddleware, Lists.updateListStatus);
 router.get('/lists', authMiddleware, Lists.lists);
+router.get('/lists/search', authMiddleware, Lists.getListByName);
+router.post('/lists/:listId/addItem', authMiddleware, Lists.addItemToList);
 
 
 export default router;
