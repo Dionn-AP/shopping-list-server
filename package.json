@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node ./build/index.js",
+    "start": "node ./build/src/index.js",
     "dev": "tsx watch src/index.ts",
     "prisma:seed": "npx ts-node prisma/seed.ts"
   },
