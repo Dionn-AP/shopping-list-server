@@ -21,7 +21,7 @@ router.patch('/tutorial', authMiddleware, User.tutorial);
 
 router.get('/items/search', authMiddleware, Item.itemsearch);
 router.get('/items', authMiddleware, Item.allitems);
-router.put('/lists/:listId/items/:itemId/update', authMiddleware, Item.updateItem);
+router.delete('/lists/:listId/items/:itemId/delete', authMiddleware, Item.deleteItem);
 
 router.post('/create/list', authMiddleware, Lists.createlist);
 router.patch('/update/list/:listId', authMiddleware, Lists.updateListStatus);

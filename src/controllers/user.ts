@@ -199,7 +199,7 @@ class User {
 
             !updatedUser.tutorial ?
                 res.json({ message: "Você optou por não ver mais o tutorial no próximo login." }) :
-                res.json({ message: "Você optou por ver o tutorial o próximo login." })
+                res.json({ message: "Você optou por ver o tutorial no próximo login." })
 
         } catch (error) {
             console.error('Erro ao atualizar tutorial do usuário:', error);

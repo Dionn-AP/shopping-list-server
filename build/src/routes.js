@@ -20,7 +20,7 @@ router.delete('/user/:id', auth_1.default, user_1.default.deleteuser);
 router.patch('/tutorial', auth_1.default, user_1.default.tutorial);
 router.get('/items/search', auth_1.default, items_1.default.itemsearch);
 router.get('/items', auth_1.default, items_1.default.allitems);
-router.put('/lists/:listId/items/:itemId/update', auth_1.default, items_1.default.updateItem);
+router.delete('/lists/:listId/items/:itemId/delete', auth_1.default, items_1.default.deleteItem);
 router.post('/create/list', auth_1.default, lists_1.default.createlist);
 router.patch('/update/list/:listId', auth_1.default, lists_1.default.updateListStatus);
 router.get('/lists', auth_1.default, lists_1.default.lists);

@@ -27,21 +27,13 @@ class Item {
     itemsearch(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { query } = req.query;
-            const userId = parseInt(req.userId);
+            //const userId = parseInt(req.userId);
             try {
-                const userLists = yield prisma.lists.findMany({
-                    where: {
-                        userId: userId,
-                    }
-                });
-                if (!userLists || userLists.length === 0) {
-                    return res.status(404).json({ message: 'Nenhuma lista encontrada para o usuário logado.' });
-                }
                 const items = yield prisma.itemSearch.findMany({
                     where: {
                         itemName: {
                             // Realiza a busca insensível a maiúsculas/minúsculas
-                            contains: [query].toString().toLowerCase(),
+                            contains: query, mode: 'insensitive'
                         },
                     },
                 });
@@ -94,5 +86,39 @@ class Item {
             }
         });
     }
+    ;
+    deleteItem(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { listId, itemId } = req.params;
+            const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
+            try {
+                // Verifica se o item pertence à lista associada ao usuário logado
+                const existingItem = yield prisma.item.findFirst({
+                    where: {
+                        id: parseInt(itemId),
+                        listId: parseInt(listId),
+                        list: {
+                            userId: userId,
+                        },
+                    },
+                });
+                if (!existingItem) {
+                    return res.status(404).json({ error: 'Item não encontrado ou não pertence à lista do usuário.' });
+                }
+                // Atualiza os campos do item
+                const deletedItem = yield prisma.item.delete({
+                    where: {
+                        id: parseInt(itemId),
+                    }
+                });
+                res.json({ message: `O item "${deletedItem.name}" foi excluído.` });
+            }
+            catch (error) {
+                console.error('Erro ao atualizar item:', error);
+                res.status(500).json({ error: 'Erro ao atualizar item' });
+            }
+        });
+    }
+    ;
 }
 exports.default = new Item();

@@ -28,7 +28,7 @@ model Lists {
   name         String
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  statusList   Boolean   @default(false)
+  statusList   String   @default("Aberta")
   items        Item[]    // Relacionamento com a tabela Item
   user         User?     @relation(fields: [userId], references: [id])
   userId       Int?
