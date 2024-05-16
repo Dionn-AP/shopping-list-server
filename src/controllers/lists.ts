@@ -174,6 +174,46 @@ class Lists {
             res.status(500).json({ error: 'Erro ao adicionar item à lista' });
         }
     };
+
+    async deleteList(req: Request, res: Response) {
+        const { listId } = req.params;
+        const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
+
+        try {
+            // Verifica se a lista pertence ao usuário logado
+            const existingList = await prisma.lists.findUnique({
+                where: {
+                    id: parseInt(listId),
+                },
+                include: {
+                    items: true,
+                },
+            });
+
+            if (!existingList || existingList.userId !== userId) {
+                return res.status(404).json({ error: 'Lista não encontrada ou não pertence ao usuário.' });
+            }
+
+            // Exclui os itens associados à lista
+            await prisma.item.deleteMany({
+                where: {
+                    listId: parseInt(listId),
+                },
+            });
+
+            // Exclui a lista
+            await prisma.lists.delete({
+                where: {
+                    id: parseInt(listId),
+                },
+            });
+
+            res.status(200).json({ message: 'Lista e itens associados excluídos com sucesso.' });
+        } catch (error) {
+            console.error('Erro ao excluir lista:', error);
+            res.status(500).json({ error: 'Erro ao excluir lista' });
+        }
+    }
 };
 
 export default new Lists();

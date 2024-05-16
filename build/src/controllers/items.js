@@ -87,38 +87,38 @@ class Item {
         });
     }
     ;
-    deleteItem(req, res) {
+    deleteItems(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { listId, itemId } = req.params;
+            const { listId } = req.params;
+            const { itemIds } = req.body; // Lista de IDs dos itens a serem excluídos
             const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
             try {
-                // Verifica se o item pertence à lista associada ao usuário logado
-                const existingItem = yield prisma.item.findFirst({
+                // Verifica se os itens pertencem à lista associada ao usuário logado
+                const existingItems = yield prisma.item.findMany({
                     where: {
-                        id: parseInt(itemId),
+                        id: { in: itemIds.map((id) => parseInt(id)) },
                         listId: parseInt(listId),
                         list: {
                             userId: userId,
                         },
                     },
                 });
-                if (!existingItem) {
-                    return res.status(404).json({ error: 'Item não encontrado ou não pertence à lista do usuário.' });
+                if (existingItems.length !== itemIds.length) {
+                    return res.status(404).json({ error: 'Um ou mais itens não foram encontrados ou não pertencem à lista do usuário.' });
                 }
-                // Atualiza os campos do item
-                const deletedItem = yield prisma.item.delete({
+                // Exclui os itens
+                const deletedItems = yield prisma.item.deleteMany({
                     where: {
-                        id: parseInt(itemId),
-                    }
+                        id: { in: itemIds.map((id) => parseInt(id)) },
+                    },
                 });
-                res.json({ message: `O item "${deletedItem.name}" foi excluído.` });
+                res.json({ message: `${deletedItems.count} itens foram excluídos.` });
             }
             catch (error) {
-                console.error('Erro ao atualizar item:', error);
-                res.status(500).json({ error: 'Erro ao atualizar item' });
+                console.error('Erro ao excluir itens:', error);
+                res.status(500).json({ error: 'Erro ao excluir itens' });
             }
         });
     }
-    ;
 }
 exports.default = new Item();

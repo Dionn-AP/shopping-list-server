@@ -176,6 +176,43 @@ class Lists {
         });
     }
     ;
+    deleteList(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { listId } = req.params;
+            const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
+            try {
+                // Verifica se a lista pertence ao usuário logado
+                const existingList = yield prisma.lists.findUnique({
+                    where: {
+                        id: parseInt(listId),
+                    },
+                    include: {
+                        items: true,
+                    },
+                });
+                if (!existingList || existingList.userId !== userId) {
+                    return res.status(404).json({ error: 'Lista não encontrada ou não pertence ao usuário.' });
+                }
+                // Exclui os itens associados à lista
+                yield prisma.item.deleteMany({
+                    where: {
+                        listId: parseInt(listId),
+                    },
+                });
+                // Exclui a lista
+                yield prisma.lists.delete({
+                    where: {
+                        id: parseInt(listId),
+                    },
+                });
+                res.status(200).json({ message: 'Lista e itens associados excluídos com sucesso.' });
+            }
+            catch (error) {
+                console.error('Erro ao excluir lista:', error);
+                res.status(500).json({ error: 'Erro ao excluir lista' });
+            }
+        });
+    }
 }
 ;
 exports.default = new Lists();

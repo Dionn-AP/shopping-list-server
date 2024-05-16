@@ -21,13 +21,13 @@ router.patch('/tutorial', authMiddleware, User.tutorial);
 
 router.get('/items/search', authMiddleware, Item.itemsearch);
 router.get('/items', authMiddleware, Item.allitems);
-router.delete('/lists/:listId/items/:itemId/delete', authMiddleware, Item.deleteItem);
+router.delete('/lists/:listId/items/delete', authMiddleware, Item.deleteItems);
 
 router.post('/create/list', authMiddleware, Lists.createlist);
 router.patch('/update/list/:listId', authMiddleware, Lists.updateListStatus);
 router.get('/lists', authMiddleware, Lists.lists);
 router.get('/lists/search', authMiddleware, Lists.getListByName);
 router.post('/lists/:listId/addItem', authMiddleware, Lists.addItemToList);
-
+router.delete('/lists/:listId', authMiddleware, Lists.deleteList);
 
 export default router;
