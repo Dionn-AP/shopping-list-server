@@ -36,15 +36,16 @@ class Item {
     };
 
     async updateItem(req: Request, res: Response) {
-        const { listId, itemId } = req.params;
-        const { name, quantity, unit, price, status } = req.body;
+        const { listId } = req.params;
+        const itemsToUpdate = req.body; // Espera-se que req.body seja um array de objetos
         const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
 
         try {
-            // Verifica se o item pertence à lista associada ao usuário logado
-            const existingItem = await prisma.item.findFirst({
+            // Verifica se todos os itens pertencem à lista associada ao usuário logado
+            const itemIds = itemsToUpdate.map((item: any) => parseInt(item.itemId));
+            const existingItems = await prisma.item.findMany({
                 where: {
-                    id: parseInt(itemId),
+                    id: { in: itemIds },
                     listId: parseInt(listId),
                     list: {
                         userId: userId,
@@ -52,28 +53,32 @@ class Item {
                 },
             });
 
-            if (!existingItem) {
-                return res.status(404).json({ error: 'Item não encontrado ou não pertence à lista do usuário.' });
+            if (existingItems.length !== itemsToUpdate.length) {
+                return res.status(404).json({ error: 'Um ou mais itens não foram encontrados ou não pertencem à lista do usuário.' });
             }
 
-            // Atualiza os campos do item
-            const updatedItem = await prisma.item.update({
-                where: {
-                    id: parseInt(itemId),
-                },
-                data: {
-                    name: name || existingItem.name,
-                    quantity: quantity || existingItem.quantity,
-                    unit: unit || existingItem.unit,
-                    price: price || existingItem.price,
-                    status: status || existingItem.status,
-                },
-            });
+            const updatedItems = await Promise.all(
+                itemsToUpdate.map(async (item: any) => {
+                    const existingItem = existingItems.find((ei) => ei.id === parseInt(item.itemId));
+                    return await prisma.item.update({
+                        where: {
+                            id: parseInt(item.itemId),
+                        },
+                        data: {
+                            name: item.name || existingItem?.name,
+                            quantity: item.quantity || existingItem?.quantity,
+                            unit: item.unit || existingItem?.unit,
+                            price: item.price || existingItem?.price,
+                            status: item.status || existingItem?.status,
+                        },
+                    });
+                })
+            );
 
-            res.json(updatedItem);
+            res.json(updatedItems);
         } catch (error) {
-            console.error('Erro ao atualizar item:', error);
-            res.status(500).json({ error: 'Erro ao atualizar item' });
+            console.error('Erro ao atualizar itens:', error);
+            res.status(500).json({ error: 'Erro ao atualizar itens' });
         }
     };
 

@@ -48,41 +48,44 @@ class Item {
     ;
     updateItem(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { listId, itemId } = req.params;
-            const { name, quantity, unit, price, status } = req.body;
+            const { listId } = req.params;
+            const itemsToUpdate = req.body; // Espera-se que req.body seja um array de objetos
             const userId = parseInt(req.userId); // Obtém o ID do usuário do token JWT
             try {
-                // Verifica se o item pertence à lista associada ao usuário logado
-                const existingItem = yield prisma.item.findFirst({
+                // Verifica se todos os itens pertencem à lista associada ao usuário logado
+                const itemIds = itemsToUpdate.map((item) => parseInt(item.itemId));
+                const existingItems = yield prisma.item.findMany({
                     where: {
-                        id: parseInt(itemId),
+                        id: { in: itemIds },
                         listId: parseInt(listId),
                         list: {
                             userId: userId,
                         },
                     },
                 });
-                if (!existingItem) {
-                    return res.status(404).json({ error: 'Item não encontrado ou não pertence à lista do usuário.' });
+                if (existingItems.length !== itemsToUpdate.length) {
+                    return res.status(404).json({ error: 'Um ou mais itens não foram encontrados ou não pertencem à lista do usuário.' });
                 }
-                // Atualiza os campos do item
-                const updatedItem = yield prisma.item.update({
-                    where: {
-                        id: parseInt(itemId),
-                    },
-                    data: {
-                        name: name || existingItem.name,
-                        quantity: quantity || existingItem.quantity,
-                        unit: unit || existingItem.unit,
-                        price: price || existingItem.price,
-                        status: status || existingItem.status,
-                    },
-                });
-                res.json(updatedItem);
+                const updatedItems = yield Promise.all(itemsToUpdate.map((item) => __awaiter(this, void 0, void 0, function* () {
+                    const existingItem = existingItems.find((ei) => ei.id === parseInt(item.itemId));
+                    return yield prisma.item.update({
+                        where: {
+                            id: parseInt(item.itemId),
+                        },
+                        data: {
+                            name: item.name || (existingItem === null || existingItem === void 0 ? void 0 : existingItem.name),
+                            quantity: item.quantity || (existingItem === null || existingItem === void 0 ? void 0 : existingItem.quantity),
+                            unit: item.unit || (existingItem === null || existingItem === void 0 ? void 0 : existingItem.unit),
+                            price: item.price || (existingItem === null || existingItem === void 0 ? void 0 : existingItem.price),
+                            status: item.status || (existingItem === null || existingItem === void 0 ? void 0 : existingItem.status),
+                        },
+                    });
+                })));
+                res.json(updatedItems);
             }
             catch (error) {
-                console.error('Erro ao atualizar item:', error);
-                res.status(500).json({ error: 'Erro ao atualizar item' });
+                console.error('Erro ao atualizar itens:', error);
+                res.status(500).json({ error: 'Erro ao atualizar itens' });
             }
         });
     }

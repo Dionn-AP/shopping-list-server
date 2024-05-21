@@ -21,6 +21,7 @@ router.patch('/tutorial', auth_1.default, user_1.default.tutorial);
 router.get('/items/search', auth_1.default, items_1.default.itemsearch);
 router.get('/items', auth_1.default, items_1.default.allitems);
 router.delete('/lists/:listId/items/delete', auth_1.default, items_1.default.deleteItems);
+router.patch('/lists/:listId/items', auth_1.default, items_1.default.updateItem);
 router.post('/create/list', auth_1.default, lists_1.default.createlist);
 router.patch('/update/list/:listId', auth_1.default, lists_1.default.updateListStatus);
 router.get('/lists', auth_1.default, lists_1.default.lists);
